@@ -1,6 +1,6 @@
-﻿using StoneAge.Data.FileSystem.Domain;
+﻿using StoneAge.FileStore.Domain;
 
-namespace StoneAge.Data.FileSystem
+namespace StoneAge.FileStore
 {
     public class Document : IDocument
     {

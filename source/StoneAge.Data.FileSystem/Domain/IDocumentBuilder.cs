@@ -1,4 +1,4 @@
-﻿namespace StoneAge.Data.FileSystem.Domain
+﻿namespace StoneAge.FileStore.Domain
 {
     public interface IDocumentBuilder : IDocumentBuilderName, IDocumentBuilderData, IDocumentBuilderGeneration
     {

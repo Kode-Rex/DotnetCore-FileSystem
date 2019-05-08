@@ -5,9 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
-using StoneAge.Data.FileSystem.Domain;
+using StoneAge.FileStore.Domain;
 
-namespace StoneAge.Data.FileSystem.Tests
+namespace StoneAge.FileStore.Tests
 {
     [TestFixture]
     public class FileSystemTests

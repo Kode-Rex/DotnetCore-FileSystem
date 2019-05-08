@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace StoneAge.Data.FileSystem.Domain
+namespace StoneAge.FileStore.Domain
 {
     public class WriteFileResult
     {

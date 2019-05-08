@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace StoneAge.Data.FileSystem.Domain
+namespace StoneAge.FileStore.Domain
 {
     public interface IFileSystem
     {

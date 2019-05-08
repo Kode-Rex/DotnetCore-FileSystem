@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\StoneAge.Data.FileSystem\StoneAge.FileSystem.csproj" />
+    <ProjectReference Include="..\StoneAge.Data.FileSystem\StoneAge.FileStore.csproj" />
   </ItemGroup>
 
 </Project>

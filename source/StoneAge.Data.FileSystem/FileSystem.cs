@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using StoneAge.Data.FileSystem.Domain;
+using StoneAge.FileStore.Domain;
 
-namespace StoneAge.Data.FileSystem
+namespace StoneAge.FileStore
 {
     public class FileSystem : IFileSystem
     {
