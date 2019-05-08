@@ -11,8 +11,8 @@
     <PackageId>StoneAge.FileSystem</PackageId>
     <Product>StoneAge.FileSystem</Product>
     <Authors>T-rav</Authors>
-    <Version>1.1.0</Version>
-    <PackageReleaseNotes>Added GetDocument to return file on file system as IDocument</PackageReleaseNotes>
+    <Version>1.2.0</Version>
+    <PackageReleaseNotes>Added Move and Rename</PackageReleaseNotes>
   </PropertyGroup>
 
 </Project>

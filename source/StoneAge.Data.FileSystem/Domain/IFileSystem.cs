@@ -10,5 +10,7 @@ namespace StoneAge.FileStore.Domain
         bool Exists(string path);
         void Delete(string path);
         IDocument GetDocument(string path);
+        bool Move(string currentPath, string newPath);
+        bool Rename(string filePath, string newName);
     }
 }

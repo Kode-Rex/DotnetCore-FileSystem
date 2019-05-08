@@ -84,6 +84,33 @@ namespace StoneAge.FileStore
                     .Create_Document();
         }
 
+        public bool Move(string file, string newLocation)
+        {
+            if (!File.Exists(file))
+            {
+                return false;
+            }
+
+            File.Move(file, newLocation);
+            return true;
+
+        }
+
+        public bool Rename(string file, string newFileName)
+        {
+            if (!File.Exists(file))
+            {
+                return false;
+            }
+
+            var directoryPath = Path.GetDirectoryName(file);
+            var newFilePath = Path.Combine(directoryPath, newFileName);
+
+            File.Move(file, newFilePath);
+
+            return true;
+        }
+
         private WriteFileResult Check_For_Errors(IDocument file, string directory)
         {
             var errorMessages = new List<string>();

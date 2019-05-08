@@ -272,6 +272,94 @@ namespace StoneAge.FileStore.Tests
             }
         }
 
+        [TestFixture]
+        class Move
+        {
+            [Test]
+            public void GivenFileExist_ExpectItIsMoved()
+            {
+                //---------------Arrange-------------------
+                var file = Create_File();
+                var newFileName = Create_File();
+                File.Delete(newFileName);
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = sut.Move(file, newFileName);
+                //---------------Assert-----------------------
+                var oldFileExist = File.Exists(file);
+                var newFileExist = File.Exists(newFileName);
+
+                actual.Should().BeTrue();
+                oldFileExist.Should().BeFalse();
+                newFileExist.Should().BeTrue();
+            }
+
+            [Test]
+            public void GivenFileDoesNotExist_ExpectFalse()
+            {
+                //---------------Arrange-------------------
+                var file = Create_File();
+                var newFileName = Create_File();
+                File.Delete(newFileName);
+                File.Delete(file);
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = sut.Move(file, newFileName);
+                //---------------Assert-----------------------
+                var oldFileExist = File.Exists(file);
+                var newFileExist = File.Exists(newFileName);
+
+                actual.Should().BeFalse();
+                oldFileExist.Should().BeFalse();
+                newFileExist.Should().BeFalse();
+            }
+        }
+
+        [TestFixture]
+        class Rename
+        {
+            [Test]
+            public void GivenFileExist_ExpectItIsRenamed()
+            {
+                //---------------Arrange-------------------
+                var file = Create_File();
+                var newFileName = "moved.txt";
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = sut.Rename(file, newFileName);
+                //---------------Assert-----------------------
+                var oldFileExist = File.Exists(file);
+                var newFileExist = File.Exists(Path.Combine(Path.GetTempPath(), newFileName));
+
+                actual.Should().BeTrue();
+                oldFileExist.Should().BeFalse();
+                newFileExist.Should().BeTrue();
+            }
+
+            [Test]
+            public void GivenFileDoesNotExist_ExpectFalse()
+            {
+                //---------------Arrange-------------------
+                var file = Create_File();
+                var newFileName = "moved.txt";
+                File.Delete(file);
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = sut.Rename(file, newFileName);
+                //---------------Assert-----------------------
+                var oldFileExist = File.Exists(file);
+                var newFileExist = File.Exists(Path.Combine(Path.GetTempPath(), newFileName));
+
+                actual.Should().BeFalse();
+                oldFileExist.Should().BeFalse();
+                newFileExist.Should().BeFalse();
+            }
+        }
+
         private static string Create_File(string content)
         {
             var tmp = Path.GetTempPath();
