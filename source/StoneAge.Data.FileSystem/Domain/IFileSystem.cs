@@ -9,5 +9,6 @@ namespace StoneAge.FileStore.Domain
         IEnumerable<FileInformation> List(string directory);
         bool Exists(string path);
         void Delete(string path);
+        IDocument GetDocument(string path);
     }
 }

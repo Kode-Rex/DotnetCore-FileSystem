@@ -228,14 +228,63 @@ namespace StoneAge.FileStore.Tests
             }
         }
 
-        private static string Create_File()
+        [TestFixture]
+        class ReadDocument
+        {
+            [Test]
+            public void GivenFileExist_ExpectDocumentWithBytesReturned()
+            {
+                //---------------Arrange-------------------
+                var contents = "hi, this is some text for a file";
+
+                var path = Create_File(contents);
+                
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = sut.GetDocument(path);
+                //---------------Assert-----------------------
+                var expected = "hi, this is some text for a file";
+                actual.ToString().Should().Be(expected);
+            }
+
+            [Test]
+            public void GivenFileDoesExist_ExpectNullDocument()
+            {
+                //---------------Arrange-------------------
+                var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = sut.GetDocument(path);
+                //---------------Assert-----------------------
+                actual.Should().Be(FileSystem.NullDocument);
+            }
+
+            [Test]
+            public void GivenNullPath_ExpectNullDocument()
+            {
+                //---------------Arrange-------------------
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = sut.GetDocument(null);
+                //---------------Assert-----------------------
+                actual.Should().Be(FileSystem.NullDocument);
+            }
+        }
+
+        private static string Create_File(string content)
         {
             var tmp = Path.GetTempPath();
             var path = Path.Combine(tmp, Guid.NewGuid().ToString());
 
-            File.WriteAllText(path, string.Empty);
+            File.WriteAllText(path, content);
 
             return path;
+        }
+
+        private static string Create_File()
+        {
+            return Create_File(string.Empty);
         }
 
         private static string Create_Missing_File()

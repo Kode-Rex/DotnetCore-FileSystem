@@ -9,6 +9,8 @@ namespace StoneAge.FileStore
 {
     public class FileSystem : IFileSystem
     {
+        public static IDocument NullDocument = new Document{Name = "NullDocument"};
+
         public async Task<WriteFileResult> Write(string directory, IDocument file)
         {
             var writeFileResult = Check_For_Errors(file, directory);
@@ -68,6 +70,19 @@ namespace StoneAge.FileStore
             }
         }
 
+        public IDocument GetDocument(string path)
+        {
+            if (!File.Exists(path))
+            {
+                return NullDocument;
+            }
+
+            var name = Path.GetFileName(path);
+            return new DocumentBuilder()
+                    .With_Name(name)
+                    .With_File(path)
+                    .Create_Document();
+        }
 
         private WriteFileResult Check_For_Errors(IDocument file, string directory)
         {
@@ -134,5 +149,7 @@ namespace StoneAge.FileStore
                 Directory.CreateDirectory(currentDirectory);
             }
         }
+
+        
     }
 }
