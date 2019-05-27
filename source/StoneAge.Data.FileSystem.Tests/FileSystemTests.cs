@@ -32,6 +32,23 @@ namespace StoneAge.FileStore.Tests
                 fileWritten.Should().BeTrue();
             }
 
+            [Test]
+            public async Task WhenFileAndPathContainNewSubDirectories_ExpectFileWritten()
+            {
+                //---------------Arrange-------------------
+                var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+                var fileName = Guid.NewGuid() + ".csv";
+                var document = Create_CsvFile(fileName);
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var result = await sut.Write(path, document);
+                //---------------Assert-----------------------
+                var fileWritten = File.Exists(Path.Combine(path, fileName));
+                result.HadError.Should().BeFalse();
+                fileWritten.Should().BeTrue();
+            }
+
             [TestCase(" ")]
             [TestCase("")]
             [TestCase(null)]
@@ -325,7 +342,7 @@ namespace StoneAge.FileStore.Tests
             {
                 //---------------Arrange-------------------
                 var file = Create_File();
-                var newFileName = "moved.txt";
+                var newFileName = $"{Guid.NewGuid()}-moved.txt";
 
                 var sut = new FileSystem();
                 //---------------Act----------------------
@@ -344,7 +361,7 @@ namespace StoneAge.FileStore.Tests
             {
                 //---------------Arrange-------------------
                 var file = Create_File();
-                var newFileName = "moved.txt";
+                var newFileName = $"{Guid.NewGuid()}-moved.txt";
                 File.Delete(file);
 
                 var sut = new FileSystem();

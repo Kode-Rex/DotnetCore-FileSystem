@@ -18,6 +18,7 @@ namespace StoneAge.FileStore
             if (!writeFileResult.HadError)
             {
                 Ensure_Directory_Is_Created(directory);
+
                 var filePath = Path.Combine(directory, file.Name);
                 await Write_File_To_Path(file, filePath);
             }
