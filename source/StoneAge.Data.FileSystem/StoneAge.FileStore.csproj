@@ -11,8 +11,9 @@
     <PackageId>StoneAge.FileSystem</PackageId>
     <Product>StoneAge.FileSystem</Product>
     <Authors>T-rav</Authors>
-    <Version>1.2.0</Version>
-    <PackageReleaseNotes>Added Move and Rename</PackageReleaseNotes>
+    <Version>1.2.1</Version>
+    <PackageReleaseNotes>Allows a file to be over-written with an error</PackageReleaseNotes>
+    <FileVersion>1.2.1.0</FileVersion>
   </PropertyGroup>
 
 </Project>

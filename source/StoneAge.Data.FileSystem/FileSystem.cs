@@ -129,12 +129,6 @@ namespace StoneAge.FileStore
                 return writeFileResult;
             }
 
-            var path = Path.Combine(directory, file.Name);
-            if (Exists(path))
-            {
-                errorMessages.Add($"File with the same name exists in directory [{directory}]");
-            }
-
             return writeFileResult;
         }
 
@@ -157,12 +151,12 @@ namespace StoneAge.FileStore
             return string.IsNullOrWhiteSpace(path) || !IsValidPath();
         }
 
-        private static bool Invalid_File_Name(IDocument file)
+        private bool Invalid_File_Name(IDocument file)
         {
             return string.IsNullOrWhiteSpace(file.Name);
         }
 
-        private static async Task Write_File_To_Path(IDocument file, string filePath)
+        private async Task Write_File_To_Path(IDocument file, string filePath)
         {
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
@@ -177,7 +171,5 @@ namespace StoneAge.FileStore
                 Directory.CreateDirectory(currentDirectory);
             }
         }
-
-        
     }
 }
