@@ -13,17 +13,24 @@ namespace StoneAge.FileStore
 
         public async Task<WriteFileResult> Write(string directory, IDocument file)
         {
-            var writeFileResult = Check_For_Errors(file, directory);
-
-            if (!writeFileResult.HadError)
+            var result = new WriteFileResult();
+            if (string.IsNullOrWhiteSpace(file.Name))
             {
-                Ensure_Directory_Is_Created(directory);
-
-                var filePath = Path.Combine(directory, file.Name);
-                await Write_File_To_Path(file, filePath);
+                result.ErrorMessages.Add("No file name provided");
+                return result;
             }
 
-            return writeFileResult;
+            result = Ensure_Directory_Is_Created(directory);
+
+            if (result.HadError)
+            {
+                return result;
+            }
+
+            var filePath = Path.Combine(directory, file.Name);
+            result = Write_File_To_Path(file, filePath);
+
+            return result;
         }
 
         public IEnumerable<FileInformation> List(string directory)
@@ -112,64 +119,46 @@ namespace StoneAge.FileStore
             return true;
         }
 
-        private WriteFileResult Check_For_Errors(IDocument file, string directory)
-        {
-            var errorMessages = new List<string>();
-            var writeFileResult = new WriteFileResult { ErrorMessages = errorMessages };
-
-            if (Invalid_File_Name(file))
-            {
-                errorMessages.Add("No file name");
-                return writeFileResult;
-            }
-
-            if (Invalid_Directory(directory))
-            {
-                errorMessages.Add("Invalid directory provided");
-                return writeFileResult;
-            }
-
-            return writeFileResult;
-        }
-
-        private static bool Invalid_Directory(string path)
-        {
-            bool IsValidPath()
-            {
-                try
-                {
-                    var root = Path.GetPathRoot(path);
-                    return string.IsNullOrEmpty(root.Trim('\\', '/')) == false;
-                    
-                }
-                catch (Exception ex)
-                {
-                    return false;
-                }
-            }
-
-            return string.IsNullOrWhiteSpace(path) || !IsValidPath();
-        }
-
         private bool Invalid_File_Name(IDocument file)
         {
             return string.IsNullOrWhiteSpace(file.Name);
         }
 
-        private async Task Write_File_To_Path(IDocument file, string filePath)
+        private WriteFileResult Write_File_To_Path(IDocument file, string filePath)
         {
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            var result = new WriteFileResult();
+            try
             {
-                await stream.WriteAsync(file.Data);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    stream.Write(file.Data);
+                }
             }
+            catch (Exception e)
+            {
+                result.ErrorMessages.Add($"An error occured writing the file [{e.Message}]");
+            }
+
+            return result;
         }
 
-        private void Ensure_Directory_Is_Created(string currentDirectory)
+        private WriteFileResult Ensure_Directory_Is_Created(string currentDirectory)
         {
+            var result= new WriteFileResult();
             if (!Directory.Exists(currentDirectory))
             {
-                Directory.CreateDirectory(currentDirectory);
+                try
+                {
+                    Directory.CreateDirectory(currentDirectory);
+                }
+                catch (Exception e)
+                {
+                    result.ErrorMessages.Add($"An error occured creating directory structure [{e.Message}]");
+                    return result;
+                }
             }
+
+            return result;
         }
     }
 }

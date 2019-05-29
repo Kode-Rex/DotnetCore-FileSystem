@@ -11,10 +11,10 @@
     <PackageId>StoneAge.FileSystem</PackageId>
     <Product>StoneAge.FileSystem</Product>
     <Authors>T-rav</Authors>
-    <Version>1.2.2</Version>
-    <PackageReleaseNotes>WriteFileResult now initializes errors to empty collection</PackageReleaseNotes>
-    <FileVersion>1.2.2.0</FileVersion>
-    <AssemblyVersion>1.2.2.0</AssemblyVersion>
+    <Version>1.3.0</Version>
+    <PackageReleaseNotes>Fixed up the code to be cross platform and to allow realative paths when saving.</PackageReleaseNotes>
+    <FileVersion>1.3.0.0</FileVersion>
+    <AssemblyVersion>1.3.0.0</AssemblyVersion>
   </PropertyGroup>
 
 </Project>

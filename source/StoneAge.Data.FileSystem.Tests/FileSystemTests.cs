@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -61,16 +60,13 @@ namespace StoneAge.FileStore.Tests
                 //---------------Act----------------------
                 var result = await sut.Write(path, document);
                 //---------------Assert-----------------------
-                result.ErrorMessages.Should().BeEquivalentTo(new List<string>
-                {
-                    "Invalid directory provided"
-                });
+                result.HadError.Should().BeTrue();
             }
-
+            
             [TestCase("abc")]
             [TestCase("~f0")]
-            public async Task WhenPathInvalid_ExpectErrorMessage(string path)
-            {
+            public async Task WhenRelativePath_ExpectFileWritten(string path)
+            { 
                 //---------------Arrange-------------------
                 var document = Create_CsvFile("test.csv");
 
@@ -78,10 +74,9 @@ namespace StoneAge.FileStore.Tests
                 //---------------Act----------------------
                 var result = await sut.Write(path, document);
                 //---------------Assert-----------------------
-                result.ErrorMessages.Should().BeEquivalentTo(new List<string>
-                {
-                    "Invalid directory provided"
-                });
+                var fileWritten = File.Exists(Path.Combine(path, "test.csv"));
+                result.HadError.Should().BeFalse();
+                fileWritten.Should().BeTrue();
             }
         }
 
