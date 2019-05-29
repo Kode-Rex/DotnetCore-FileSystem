@@ -11,9 +11,10 @@
     <PackageId>StoneAge.FileSystem</PackageId>
     <Product>StoneAge.FileSystem</Product>
     <Authors>T-rav</Authors>
-    <Version>1.2.1</Version>
-    <PackageReleaseNotes>Allows a file to be over-written with an error</PackageReleaseNotes>
-    <FileVersion>1.2.1.0</FileVersion>
+    <Version>1.2.2</Version>
+    <PackageReleaseNotes>WriteFileResult now initializes errors to empty collection</PackageReleaseNotes>
+    <FileVersion>1.2.2.0</FileVersion>
+    <AssemblyVersion>1.2.2.0</AssemblyVersion>
   </PropertyGroup>
 
 </Project>
