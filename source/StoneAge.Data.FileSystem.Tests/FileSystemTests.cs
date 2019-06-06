@@ -26,7 +26,7 @@ namespace StoneAge.FileStore.Tests
                 //---------------Act----------------------
                 var result = await sut.Write(path, document);
                 //---------------Assert-----------------------
-                var fileWritten = File.Exists(Path.Combine(path,fileName));
+                var fileWritten = File.Exists(result.FullFilePath);
                 result.HadError.Should().BeFalse();
                 fileWritten.Should().BeTrue();
             }
@@ -77,6 +77,22 @@ namespace StoneAge.FileStore.Tests
                 var fileWritten = File.Exists(Path.Combine(path, "test.csv"));
                 result.HadError.Should().BeFalse();
                 fileWritten.Should().BeTrue();
+            }
+
+            [Test]
+            public async Task WhenFileAndPathValid_ExpectFullFilePathReturned()
+            {
+                //---------------Arrange-------------------
+                var path = Path.GetTempPath();
+                var fileName = Guid.NewGuid() + ".csv";
+                var document = Create_CsvFile(fileName);
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var result = await sut.Write(path, document);
+                //---------------Assert-----------------------
+                var expected = Path.Combine(path, fileName);
+                result.FullFilePath.Should().Be(expected);
             }
         }
 

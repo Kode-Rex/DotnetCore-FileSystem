@@ -119,11 +119,6 @@ namespace StoneAge.FileStore
             return true;
         }
 
-        private bool Invalid_File_Name(IDocument file)
-        {
-            return string.IsNullOrWhiteSpace(file.Name);
-        }
-
         private WriteFileResult Write_File_To_Path(IDocument file, string filePath)
         {
             var result = new WriteFileResult();
@@ -133,6 +128,8 @@ namespace StoneAge.FileStore
                 {
                     stream.Write(file.Data);
                 }
+
+                result.FullFilePath = filePath;
             }
             catch (Exception e)
             {

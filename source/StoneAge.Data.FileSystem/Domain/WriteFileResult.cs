@@ -7,6 +7,7 @@ namespace StoneAge.FileStore.Domain
         public bool HadError => ErrorMessages.Count > 0;
 
         public List<string> ErrorMessages { get; set; }
+        public string FullFilePath { get; set; }
 
         public WriteFileResult()
         {
