@@ -26,6 +26,40 @@ namespace StoneAge.FileStore.Tests
         }
 
         [Test]
+        public void GivenText_ExpectStringReturned()
+        {
+            //---------------Arrange-------------------
+            var input = "a message in a file";
+
+            var sut = new DocumentBuilder()
+                .With_Name("test.txt")
+                .With_String(input)
+                .Create_Document();
+            //---------------Act----------------------
+            var actual = sut.ToString();
+            //---------------Assert-----------------------
+            var expected = "a message in a file";
+            actual.Should().Be(expected);
+        }
+
+        [Test]
+        public void GivenFullFilePath_ExpectFileNameExtracted()
+        {
+            //---------------Arrange-------------------
+            var input = "a message in a file";
+
+            var sut = new DocumentBuilder()
+                .Using_Name_From_Path("c:\\tmp\\test.txt")
+                .With_String(input)
+                .Create_Document();
+            //---------------Act----------------------
+            var actual = sut.Name;
+            //---------------Assert-----------------------
+            var expected = "test.txt";
+            actual.Should().Be(expected);
+        }
+
+        [Test]
         public void GivenNullBytes_ExpectEmptyString()
         {
             //---------------Arrange-------------------

@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Text;
 using StoneAge.FileStore.Domain;
 
 namespace StoneAge.FileStore
@@ -15,6 +17,12 @@ namespace StoneAge.FileStore
             return this;
         }
 
+        public IDocumentBuilderData Using_Name_From_Path(string path)
+        {
+            _name = Path.GetFileName(path);
+            return this;
+        }
+
         public IDocumentBuilderGeneration With_File(string file)
         {
             _filePath = file;
@@ -24,6 +32,12 @@ namespace StoneAge.FileStore
         public IDocumentBuilderGeneration With_Bytes(byte[] bytes)
         {
             _bytes = bytes;
+            return this;
+        }
+
+        public IDocumentBuilderGeneration With_String(string data)
+        {
+            _bytes = Encoding.UTF8.GetBytes(data);
             return this;
         }
 
