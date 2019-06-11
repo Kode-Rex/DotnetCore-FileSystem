@@ -13,24 +13,27 @@ namespace StoneAge.FileStore
 
         public async Task<WriteFileResult> Write(string directory, IDocument file)
         {
-            var result = new WriteFileResult();
-            if (string.IsNullOrWhiteSpace(file.Name))
+            return await Task.Run(() =>
             {
-                result.ErrorMessages.Add("No file name provided");
+                var result = new WriteFileResult();
+                if (string.IsNullOrWhiteSpace(file.Name))
+                {
+                    result.ErrorMessages.Add("No file name provided");
+                    return result;
+                }
+
+                result = Ensure_Directory_Is_Created(directory);
+
+                if (result.HadError)
+                {
+                    return result;
+                }
+
+                var filePath = Path.Combine(directory, file.Name);
+                result = Write_File_To_Path(file, filePath, FileMode.Create);
+
                 return result;
-            }
-
-            result = Ensure_Directory_Is_Created(directory);
-
-            if (result.HadError)
-            {
-                return result;
-            }
-
-            var filePath = Path.Combine(directory, file.Name);
-            result = Write_File_To_Path(file, filePath);
-
-            return result;
+            });
         }
 
         public IEnumerable<FileInformation> List(string directory)
@@ -78,6 +81,11 @@ namespace StoneAge.FileStore
             }
         }
 
+        public IDocument Read(string path)
+        {
+            return GetDocument(path);
+        }
+
         public IDocument GetDocument(string path)
         {
             if (!File.Exists(path))
@@ -87,9 +95,9 @@ namespace StoneAge.FileStore
 
             var name = Path.GetFileName(path);
             return new DocumentBuilder()
-                    .With_Name(name)
-                    .With_File(path)
-                    .Create_Document();
+                .With_Name(name)
+                .With_File(path)
+                .Create_Document();
         }
 
         public bool Move(string file, string newLocation)
@@ -119,12 +127,37 @@ namespace StoneAge.FileStore
             return true;
         }
 
-        private WriteFileResult Write_File_To_Path(IDocument file, string filePath)
+        public async Task<WriteFileResult> Append(string directory, IDocument file)
+        {
+            return await Task.Run(() =>
+            {
+                var result = new WriteFileResult();
+                if (string.IsNullOrWhiteSpace(file.Name))
+                {
+                    result.ErrorMessages.Add("No file name provided");
+                    return result;
+                }
+
+                result = Ensure_Directory_Is_Created(directory);
+
+                if (result.HadError)
+                {
+                    return result;
+                }
+
+                var filePath = Path.Combine(directory, file.Name);
+                result = Write_File_To_Path(file, filePath, FileMode.Append);
+
+                return result;
+            });
+        }
+
+        private WriteFileResult Write_File_To_Path(IDocument file, string filePath, FileMode fileMode)
         {
             var result = new WriteFileResult();
             try
             {
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                using (var stream = new FileStream(filePath, fileMode))
                 {
                     stream.Write(file.Data);
                 }

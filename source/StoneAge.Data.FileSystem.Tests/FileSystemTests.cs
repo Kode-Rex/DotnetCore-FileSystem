@@ -97,6 +97,91 @@ namespace StoneAge.FileStore.Tests
         }
 
         [TestFixture]
+        class Append
+        {
+            [Test]
+            public async Task WhenFileAndPathValid_ExpectFileWritten()
+            {
+                //---------------Arrange-------------------
+                var path = Path.GetTempPath();
+                var fileName = Guid.NewGuid() + ".csv";
+                var document = Create_CsvFile(fileName);
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var result = await sut.Append(path, document);
+                //---------------Assert-----------------------
+                var fileWritten = File.Exists(result.FullFilePath);
+                result.HadError.Should().BeFalse();
+                fileWritten.Should().BeTrue();
+            }
+
+            [Test]
+            public async Task WhenFileAndPathContainNewSubDirectories_ExpectFileWritten()
+            {
+                //---------------Arrange-------------------
+                var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+                var fileName = Guid.NewGuid() + ".csv";
+                var document = Create_CsvFile(fileName);
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var result = await sut.Write(path, document);
+                //---------------Assert-----------------------
+                var fileWritten = File.Exists(Path.Combine(path, fileName));
+                result.HadError.Should().BeFalse();
+                fileWritten.Should().BeTrue();
+            }
+
+            [TestCase(" ")]
+            [TestCase("")]
+            [TestCase(null)]
+            public async Task WhenPathContainsNullOrWhiteSpace_ExpectErrorMessage(string path)
+            {
+                //---------------Arrange-------------------
+                var document = Create_CsvFile("test.csv");
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var result = await sut.Write(path, document);
+                //---------------Assert-----------------------
+                result.HadError.Should().BeTrue();
+            }
+
+            [TestCase("abc")]
+            [TestCase("~f0")]
+            public async Task WhenRelativePath_ExpectFileWritten(string path)
+            {
+                //---------------Arrange-------------------
+                var document = Create_CsvFile("test.csv");
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var result = await sut.Write(path, document);
+                //---------------Assert-----------------------
+                var fileWritten = File.Exists(Path.Combine(path, "test.csv"));
+                result.HadError.Should().BeFalse();
+                fileWritten.Should().BeTrue();
+            }
+
+            [Test]
+            public async Task WhenFileAndPathValid_ExpectFullFilePathReturned()
+            {
+                //---------------Arrange-------------------
+                var path = Path.GetTempPath();
+                var fileName = Guid.NewGuid() + ".csv";
+                var document = Create_CsvFile(fileName);
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var result = await sut.Write(path, document);
+                //---------------Assert-----------------------
+                var expected = Path.Combine(path, fileName);
+                result.FullFilePath.Should().Be(expected);
+            }
+        }
+
+        [TestFixture]
         class List
         {
             [Test]
@@ -295,6 +380,50 @@ namespace StoneAge.FileStore.Tests
                 var sut = new FileSystem();
                 //---------------Act----------------------
                 var actual = sut.GetDocument(null);
+                //---------------Assert-----------------------
+                actual.Should().Be(FileSystem.NullDocument);
+            }
+        }
+
+        [TestFixture]
+        class Read
+        {
+            [Test]
+            public void GivenFileExist_ExpectDocumentWithBytesReturned()
+            {
+                //---------------Arrange-------------------
+                var contents = "hi, this is some text for a file";
+
+                var path = Create_File(contents);
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = sut.Read(path);
+                //---------------Assert-----------------------
+                var expected = "hi, this is some text for a file";
+                actual.ToString().Should().Be(expected);
+            }
+
+            [Test]
+            public void GivenFileDoesExist_ExpectNullDocument()
+            {
+                //---------------Arrange-------------------
+                var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = sut.Read(path);
+                //---------------Assert-----------------------
+                actual.Should().Be(FileSystem.NullDocument);
+            }
+
+            [Test]
+            public void GivenNullPath_ExpectNullDocument()
+            {
+                //---------------Arrange-------------------
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = sut.Read(null);
                 //---------------Assert-----------------------
                 actual.Should().Be(FileSystem.NullDocument);
             }
