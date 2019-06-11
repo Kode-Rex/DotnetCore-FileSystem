@@ -430,6 +430,50 @@ namespace StoneAge.FileStore.Tests
         }
 
         [TestFixture]
+        class ReadAllLines
+        {
+            [Test]
+            public async Task GivenFileExist_ExpectDocumentWithBytesReturned()
+            {
+                //---------------Arrange-------------------
+                var contents = "hi, this is some text for a file";
+
+                var path = Create_File(contents);
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = await sut.ReadAllLines(path);
+                //---------------Assert-----------------------
+                var expected = new []{"hi, this is some text for a file"};
+                actual.Should().BeEquivalentTo(expected);
+            }
+
+            [Test]
+            public void GivenFileDoesExist_ExpectException()
+            {
+                //---------------Arrange-------------------
+                var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = Assert.ThrowsAsync<FileNotFoundException>(async ()=>await sut.ReadAllLines(path));
+                //---------------Assert-----------------------
+                actual.Message.Should().NotBeEmpty();
+            }
+
+            [Test]
+            public void GivenNullPath_ExpectException()
+            {
+                //---------------Arrange-------------------
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ReadAllLines(null));
+                //---------------Assert-----------------------
+                actual.Message.Should().NotBeEmpty();
+            }
+        }
+
+        [TestFixture]
         class Move
         {
             [Test]

@@ -12,6 +12,7 @@ namespace StoneAge.FileStore.Domain
         void Delete(string path);
         IDocument Read(string path);
         IDocument GetDocument(string path);
+        Task<IEnumerable<string>> ReadAllLines(string path);
         bool Move(string currentPath, string newPath);
         bool Rename(string filePath, string newName);
     }

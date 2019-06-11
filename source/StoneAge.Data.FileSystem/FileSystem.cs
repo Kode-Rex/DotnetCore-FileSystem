@@ -152,6 +152,11 @@ namespace StoneAge.FileStore
             });
         }
 
+        public async Task<IEnumerable<string>> ReadAllLines(string path)
+        {
+            return await File.ReadAllLinesAsync(path);
+        }
+
         private WriteFileResult Write_File_To_Path(IDocument file, string filePath, FileMode fileMode)
         {
             var result = new WriteFileResult();
@@ -190,5 +195,6 @@ namespace StoneAge.FileStore
 
             return result;
         }
+        
     }
 }
