@@ -538,6 +538,48 @@ namespace StoneAge.FileStore.Tests
                 oldFileExist.Should().BeFalse();
                 newFileExist.Should().BeFalse();
             }
+
+            [Test]
+            public void GivenDestinationFileExist_ExpectItIsNotMoved()
+            {
+                //---------------Arrange-------------------
+                var file = Create_File();
+                var newFileName = Create_File();
+                
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = sut.Move(file, newFileName);
+                //---------------Assert-----------------------
+                var oldFileExist = File.Exists(file);
+                var newFileExist = File.Exists(newFileName);
+
+                actual.Should().BeFalse();
+                oldFileExist.Should().BeTrue();
+                newFileExist.Should().BeTrue();
+            }
+        }
+
+        [TestFixture]
+        class MoveWithOverwrite
+        {
+            [Test]
+            public void GivenDestinationFileExist_ExpectItIsMoved()
+            {
+                //---------------Arrange-------------------
+                var file = Create_File();
+                var newFileName = Create_File();
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = sut.MoveWithOverwrite(file, newFileName);
+                //---------------Assert-----------------------
+                var oldFileExist = File.Exists(file);
+                var newFileExist = File.Exists(newFileName);
+
+                actual.Should().BeTrue();
+                oldFileExist.Should().BeFalse();
+                newFileExist.Should().BeTrue();
+            }
         }
 
         [TestFixture]

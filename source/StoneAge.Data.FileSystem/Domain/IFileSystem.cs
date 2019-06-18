@@ -14,6 +14,7 @@ namespace StoneAge.FileStore.Domain
         IDocument GetDocument(string path);
         Task<IEnumerable<string>> ReadAllLines(string path);
         bool Move(string currentPath, string newPath);
+        bool MoveWithOverwrite(string file, string newLocation);
         bool Rename(string filePath, string newName);
     }
 }

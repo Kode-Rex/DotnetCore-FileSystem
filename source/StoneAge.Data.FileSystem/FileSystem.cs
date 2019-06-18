@@ -107,6 +107,30 @@ namespace StoneAge.FileStore
                 return false;
             }
 
+            try
+            {
+                File.Move(file, newLocation);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+        }
+
+        public bool MoveWithOverwrite(string file, string newLocation)
+        {
+            if (!File.Exists(file))
+            {
+                return false;
+            }
+
+            if (File.Exists(newLocation))
+            {
+                File.Delete(newLocation);
+            }
+
             File.Move(file, newLocation);
             return true;
 

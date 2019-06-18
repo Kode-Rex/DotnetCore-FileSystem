@@ -11,10 +11,10 @@
     <PackageId>StoneAge.FileSystem</PackageId>
     <Product>StoneAge.FileSystem</Product>
     <Authors>T-rav</Authors>
-    <Version>1.4.2</Version>
-    <PackageReleaseNotes>Added ReadAllLines</PackageReleaseNotes>
-    <FileVersion>1.4.2.0</FileVersion>
-    <AssemblyVersion>1.4.2.0</AssemblyVersion>
+    <Version>1.4.3</Version>
+    <PackageReleaseNotes>Adde MoveWithOverwrite to overwrite an existing file when moving</PackageReleaseNotes>
+    <FileVersion>1.4.3.0</FileVersion>
+    <AssemblyVersion>1.4.3.0</AssemblyVersion>
   </PropertyGroup>
 
 </Project>
