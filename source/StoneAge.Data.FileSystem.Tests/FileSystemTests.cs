@@ -94,6 +94,28 @@ namespace StoneAge.FileStore.Tests
                 var expected = Path.Combine(path, fileName);
                 result.FullFilePath.Should().Be(expected);
             }
+
+            [Test]
+            public async Task WhenFileExist_ExpectItOverWritten()
+            {
+                //---------------Arrange-------------------
+                var path = Path.GetTempPath();
+                var fileName = Guid.NewGuid() + ".csv";
+                Write_File_Contents_For_Testing(path, fileName);
+                var document = Create_CsvFile(fileName);
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var result = await sut.Write(path, document);
+                //---------------Assert-----------------------
+                var contents = File.ReadAllBytes(result.FullFilePath);
+                contents.Should().BeEquivalentTo(new byte[5]);
+            }
+
+            private static void Write_File_Contents_For_Testing(string path, string fileName)
+            {
+                File.WriteAllText(Path.Combine(path, fileName), "test line");
+            }
         }
 
         [TestFixture]
