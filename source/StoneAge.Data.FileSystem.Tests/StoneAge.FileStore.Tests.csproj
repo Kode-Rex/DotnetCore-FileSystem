@@ -15,4 +15,10 @@
     <ProjectReference Include="..\StoneAge.Data.FileSystem\StoneAge.FileStore.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="majestic_million.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

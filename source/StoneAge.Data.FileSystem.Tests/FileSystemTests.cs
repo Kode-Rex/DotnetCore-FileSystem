@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -458,16 +459,17 @@ namespace StoneAge.FileStore.Tests
             public async Task GivenFileExist_ExpectDocumentWithBytesReturned()
             {
                 //---------------Arrange-------------------
-                var contents = "hi, this is some text for a file";
-
-                var path = Create_File(contents);
+                var path = Create_File_With_Million_Lines();
 
                 var sut = new FileSystem();
                 //---------------Act----------------------
                 var actual = await sut.ReadAllLines(path);
                 //---------------Assert-----------------------
-                var expected = new []{"hi, this is some text for a file"};
-                actual.Should().BeEquivalentTo(expected);
+                var expectedFirst = "GlobalRank,TldRank,Domain,TLD,RefSubNets,RefIPs,IDN_Domain,IDN_TLD,PrevGlobalRank,PrevTldRank,PrevRefSubNets,PrevRefIPs";
+                var expectedLast = "1000000,499336,alexandrevicenzi.com,com,341,364,alexandrevicenzi.com,com,982364,490355,345,368";
+                actual.Count().Should().Be(1000001);
+                actual.FirstOrDefault().Should().BeEquivalentTo(expectedFirst);
+                actual.LastOrDefault().Should().BeEquivalentTo(expectedLast);
             }
 
             [Test]
@@ -623,6 +625,18 @@ namespace StoneAge.FileStore.Tests
                 oldFileExist.Should().BeFalse();
                 newFileExist.Should().BeFalse();
             }
+        }
+
+        private static string Create_File_With_Million_Lines()
+        {
+            var tmp = Path.GetTempPath();
+            var path = Path.Combine(tmp, Guid.NewGuid().ToString());
+
+            var location = TestContext.CurrentContext.WorkDirectory;
+            var moveFilePath = Path.Combine(location, "majestic_million.csv");
+            File.Move(moveFilePath, path);
+
+            return path;
         }
 
         private static string Create_File(string content)
