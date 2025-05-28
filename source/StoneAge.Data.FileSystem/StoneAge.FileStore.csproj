@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Company>StoneAge Technolgoies LLC</Company>
     <Description>A simple file system abstraction. Use it to make testing file system related stuff eaiser with the provided interfaces.</Description>
     <RepositoryUrl>https://github.com/StoneAgeTechnologies/DotnetCore-FileSystem</RepositoryUrl>
