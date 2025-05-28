@@ -202,6 +202,31 @@ namespace StoneAge.FileStore.Tests
                 var expected = Path.Combine(path, fileName);
                 result.FullFilePath.Should().Be(expected);
             }
+
+            [Test]
+            public async Task WhenFileExists_ExpectAppendedContentAdded()
+            {
+                //---------------Arrange-------------------
+                var directory = Path.GetTempPath();
+                var fileName = Guid.NewGuid() + ".txt";
+                var fullPath = Path.Combine(directory, fileName);
+                var originalContent = "original data";
+                File.WriteAllText(fullPath, originalContent);
+
+                var appendContent = "new data";
+                var document = new DocumentBuilder()
+                                    .With_Name(fileName)
+                                    .With_String(appendContent)
+                                    .Create_Document();
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var result = await sut.Append(directory, document);
+                //---------------Assert-----------------------
+                var fileContents = File.ReadAllText(result.FullFilePath);
+                fileContents.Should().Contain(originalContent);
+                fileContents.Should().Contain(appendContent);
+            }
         }
 
         [TestFixture]
