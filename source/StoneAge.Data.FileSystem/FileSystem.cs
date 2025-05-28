@@ -9,7 +9,7 @@ namespace StoneAge.FileStore
 {
     public class FileSystem : IFileSystem
     {
-        public static IDocument NullDocument = new Document{Name = "NullDocument"};
+        public static readonly IDocument NullDocument = new Document{Name = "NullDocument"};
 
         public async Task<WriteFileResult> Write(string directory, IDocument file)
         {
@@ -19,6 +19,12 @@ namespace StoneAge.FileStore
                 if (string.IsNullOrWhiteSpace(file.Name))
                 {
                     result.ErrorMessages.Add("No file name provided");
+                    return result;
+                }
+                
+                if (string.IsNullOrWhiteSpace(directory))
+                {
+                    result.ErrorMessages.Add("No directory provided");
                     return result;
                 }
 
@@ -159,6 +165,12 @@ namespace StoneAge.FileStore
                 if (string.IsNullOrWhiteSpace(file.Name))
                 {
                     result.ErrorMessages.Add("No file name provided");
+                    return result;
+                }
+                
+                if (string.IsNullOrWhiteSpace(directory))
+                {
+                    result.ErrorMessages.Add("No directory provided");
                     return result;
                 }
 

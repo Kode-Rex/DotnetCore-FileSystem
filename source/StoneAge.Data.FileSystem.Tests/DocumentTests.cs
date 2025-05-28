@@ -49,7 +49,7 @@ namespace StoneAge.FileStore.Tests
             var input = "a message in a file";
 
             var sut = new DocumentBuilder()
-                .Using_Name_From_Path("c:\\tmp\\test.txt")
+                .Using_Name_From_Path(@"c:\tmp\test.txt")
                 .With_String(input)
                 .Create_Document();
             //---------------Act----------------------

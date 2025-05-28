@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -217,7 +216,7 @@ namespace StoneAge.FileStore.Tests
                 //---------------Act----------------------
                 var result = sut.List(path);
                 //---------------Assert-----------------------
-                result.Count().Should().BeGreaterOrEqualTo(1);
+                result.Count().Should().BeGreaterThanOrEqualTo(1);
             }
 
             [Test]
@@ -467,9 +466,10 @@ namespace StoneAge.FileStore.Tests
                 //---------------Assert-----------------------
                 var expectedFirst = "GlobalRank,TldRank,Domain,TLD,RefSubNets,RefIPs,IDN_Domain,IDN_TLD,PrevGlobalRank,PrevTldRank,PrevRefSubNets,PrevRefIPs";
                 var expectedLast = "1000000,499336,alexandrevicenzi.com,com,341,364,alexandrevicenzi.com,com,982364,490355,345,368";
-                actual.Count().Should().Be(1000001);
-                actual.FirstOrDefault().Should().BeEquivalentTo(expectedFirst);
-                actual.LastOrDefault().Should().BeEquivalentTo(expectedLast);
+                var enumerable = actual as string[] ?? actual.ToArray();
+                enumerable.Count().Should().Be(1000001);
+                enumerable.FirstOrDefault().Should().BeEquivalentTo(expectedFirst);
+                enumerable.LastOrDefault().Should().BeEquivalentTo(expectedLast);
             }
 
             [Test]
@@ -482,7 +482,7 @@ namespace StoneAge.FileStore.Tests
                 //---------------Act----------------------
                 var actual = Assert.ThrowsAsync<FileNotFoundException>(async ()=>await sut.ReadAllLines(path));
                 //---------------Assert-----------------------
-                actual.Message.Should().NotBeEmpty();
+                actual?.Message.Should().NotBeEmpty();
             }
 
             [Test]
@@ -493,7 +493,7 @@ namespace StoneAge.FileStore.Tests
                 //---------------Act----------------------
                 var actual = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ReadAllLines(null));
                 //---------------Assert-----------------------
-                actual.Message.Should().NotBeEmpty();
+                actual?.Message.Should().NotBeEmpty();
             }
         }
 
