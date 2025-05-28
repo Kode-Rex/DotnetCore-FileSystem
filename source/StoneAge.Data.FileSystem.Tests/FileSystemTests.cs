@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -120,7 +120,7 @@ namespace StoneAge.FileStore.Tests
                 var fileName = Guid.NewGuid() + ".txt";
                 var document = new DocumentBuilder()
                                     .With_Name(fileName)
-                                    // intentionally not setting bytes or file
+                                    .With_Bytes(null)    // explicitly set null data
                                     .Create_Document();
 
                 var sut = new FileSystem();
