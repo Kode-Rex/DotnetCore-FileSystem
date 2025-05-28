@@ -196,6 +196,13 @@ namespace StoneAge.FileStore
         private WriteFileResult Write_File_To_Path(IDocument file, string filePath, FileMode fileMode)
         {
             var result = new WriteFileResult();
+
+            if (file.Data == null)
+            {
+                result.ErrorMessages.Add("No file data provided; cannot write file.");
+                return result;
+            }
+
             try
             {
                 using (var stream = new FileStream(filePath, fileMode))
