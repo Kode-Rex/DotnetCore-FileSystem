@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -110,6 +110,25 @@ namespace StoneAge.FileStore.Tests
                 //---------------Assert-----------------------
                 var contents = File.ReadAllBytes(result.FullFilePath);
                 contents.Should().BeEquivalentTo(new byte[5]);
+            }
+
+            [Test]
+            public async Task WhenFileDataIsNull_ExpectErrorMessage()
+            {
+                //---------------Arrange-------------------
+                var path = Path.GetTempPath();
+                var fileName = Guid.NewGuid() + ".txt";
+                var document = new DocumentBuilder()
+                                    .With_Name(fileName)
+                                    .With_Bytes(null)    // explicitly set null data
+                                    .Create_Document();
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var result = await sut.Write(path, document);
+                //---------------Assert-----------------------
+                result.HadError.Should().BeTrue();
+                result.ErrorMessages.Should().Contain("No file data provided; cannot write file.");
             }
 
             private static void Write_File_Contents_For_Testing(string path, string fileName)
