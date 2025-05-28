@@ -19,7 +19,11 @@ namespace StoneAge.FileStore
 
         public IDocumentBuilderData Using_Name_From_Path(string path)
         {
-            _name = Path.GetFileName(path);
+            // Normalize all path separators to the current OS style
+            var normalized = path
+                                    .Replace('\\', Path.DirectorySeparatorChar)
+                                    .Replace('/', Path.DirectorySeparatorChar);
+            _name = Path.GetFileName(normalized);
             return this;
         }
 
