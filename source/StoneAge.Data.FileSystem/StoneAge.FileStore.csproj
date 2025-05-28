@@ -11,10 +11,16 @@
     <PackageId>StoneAge.FileSystem</PackageId>
     <Product>StoneAge.FileSystem</Product>
     <Authors>T-rav</Authors>
-    <Version>1.4.4</Version>
-    <PackageReleaseNotes>Adde MoveWithOverwrite to overwrite an existing file when moving</PackageReleaseNotes>
-    <FileVersion>1.4.4.0</FileVersion>
-    <AssemblyVersion>1.4.4.0</AssemblyVersion>
+    <Version>1.4.6</Version>
+    <PackageReleaseNotes>.net 8 upgrade and fixed a few small bugs</PackageReleaseNotes>
+    <FileVersion>1.4.6.0</FileVersion>
+    <AssemblyVersion>1.4.6.0</AssemblyVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
 </Project>

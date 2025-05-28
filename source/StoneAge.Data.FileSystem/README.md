@@ -1,0 +1,1 @@
+A simple file system abstraction. Use it to make testing file system related stuff eaiser with the provided interfaces.
