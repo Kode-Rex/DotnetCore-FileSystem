@@ -63,6 +63,11 @@ namespace StoneAge.FileStore
             return fileInformations;
         }
 
+        public async Task<IEnumerable<FileInformation>> ListAsync(string directory)
+        {
+            return await Task.Run(() => List(directory));
+        }
+
         public bool Exists(string path)
         {
             if (string.IsNullOrEmpty(path))
@@ -73,8 +78,18 @@ namespace StoneAge.FileStore
             return Directory.Exists(path) || File.Exists(path);
         }
 
+        public async Task<bool> ExistsAsync(string path)
+        {
+            return await Task.Run(() => Exists(path));
+        }
+
         public void Delete(string path)
         {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return;
+            }
+
             if (Directory.Exists(path))
             {
                 Directory.Delete(path, true);
@@ -87,9 +102,19 @@ namespace StoneAge.FileStore
             }
         }
 
+        public async Task DeleteAsync(string path)
+        {
+            await Task.Run(() => Delete(path));
+        }
+
         public IDocument Read(string path)
         {
             return GetDocument(path);
+        }
+
+        public async Task<IDocument> ReadAsync(string path)
+        {
+            return await GetDocumentAsync(path);
         }
 
         public IDocument GetDocument(string path)
@@ -104,6 +129,11 @@ namespace StoneAge.FileStore
                 .With_Name(name)
                 .With_File(path)
                 .Create_Document();
+        }
+
+        public async Task<IDocument> GetDocumentAsync(string path)
+        {
+            return await Task.Run(() => GetDocument(path));
         }
 
         public bool Move(string file, string newLocation)
@@ -125,6 +155,11 @@ namespace StoneAge.FileStore
 
         }
 
+        public async Task<bool> MoveAsync(string file, string newLocation)
+        {
+            return await Task.Run(() => Move(file, newLocation));
+        }
+
         public bool MoveWithOverwrite(string file, string newLocation)
         {
             if (!File.Exists(file))
@@ -132,14 +167,25 @@ namespace StoneAge.FileStore
                 return false;
             }
 
-            if (File.Exists(newLocation))
+            try
             {
-                File.Delete(newLocation);
+                if (File.Exists(newLocation))
+                {
+                    File.Delete(newLocation);
+                }
+
+                File.Move(file, newLocation);
+                return true;
             }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
 
-            File.Move(file, newLocation);
-            return true;
-
+        public async Task<bool> MoveWithOverwriteAsync(string file, string newLocation)
+        {
+            return await Task.Run(() => MoveWithOverwrite(file, newLocation));
         }
 
         public bool Rename(string file, string newFileName)
@@ -149,12 +195,28 @@ namespace StoneAge.FileStore
                 return false;
             }
 
-            var directoryPath = Path.GetDirectoryName(file);
-            var newFilePath = Path.Combine(directoryPath, newFileName);
+            try
+            {
+                var directoryPath = Path.GetDirectoryName(file);
+                var newFilePath = Path.Combine(directoryPath, newFileName);
 
-            File.Move(file, newFilePath);
+                if (File.Exists(newFilePath))
+                {
+                    return false;
+                }
 
-            return true;
+                File.Move(file, newFilePath);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> RenameAsync(string file, string newFileName)
+        {
+            return await Task.Run(() => Rename(file, newFileName));
         }
 
         public async Task<WriteFileResult> Append(string directory, IDocument file)
@@ -190,6 +252,16 @@ namespace StoneAge.FileStore
 
         public async Task<IEnumerable<string>> ReadAllLines(string path)
         {
+            if (string.IsNullOrEmpty(path))
+            {
+                throw new ArgumentNullException(nameof(path));
+            }
+            
+            if (!File.Exists(path))
+            {
+                throw new FileNotFoundException($"File not found: {path}", path);
+            }
+            
             return await File.ReadAllLinesAsync(path);
         }
 
