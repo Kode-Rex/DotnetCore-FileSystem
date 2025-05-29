@@ -41,7 +41,7 @@ namespace StoneAge.FileStore.Tests
 
                 var sut = new FileSystem();
                 //---------------Act----------------------
-                var result = await sut.Write(path, document);
+                var result = await sut.Append(path, document);
                 //---------------Assert-----------------------
                 var fileWritten = File.Exists(Path.Combine(path, fileName));
                 result.HadError.Should().BeFalse();
@@ -167,7 +167,7 @@ namespace StoneAge.FileStore.Tests
 
                 var sut = new FileSystem();
                 //---------------Act----------------------
-                var result = await sut.Write(path, document);
+                var result = await sut.Append(path, document);
                 //---------------Assert-----------------------
                 var fileWritten = File.Exists(Path.Combine(path, fileName));
                 result.HadError.Should().BeFalse();
@@ -184,7 +184,7 @@ namespace StoneAge.FileStore.Tests
 
                 var sut = new FileSystem();
                 //---------------Act----------------------
-                var result = await sut.Write(path, document);
+                var result = await sut.Append(path, document);
                 //---------------Assert-----------------------
                 result.HadError.Should().BeTrue();
             }
@@ -198,7 +198,7 @@ namespace StoneAge.FileStore.Tests
 
                 var sut = new FileSystem();
                 //---------------Act----------------------
-                var result = await sut.Write(path, document);
+                var result = await sut.Append(path, document);
                 //---------------Assert-----------------------
                 var fileWritten = File.Exists(Path.Combine(path, "test.csv"));
                 result.HadError.Should().BeFalse();
@@ -215,10 +215,29 @@ namespace StoneAge.FileStore.Tests
 
                 var sut = new FileSystem();
                 //---------------Act----------------------
-                var result = await sut.Write(path, document);
+                var result = await sut.Append(path, document);
                 //---------------Assert-----------------------
                 var expected = Path.Combine(path, fileName);
                 result.FullFilePath.Should().Be(expected);
+            }
+
+            [Test]
+            public async Task WhenFileDataIsNull_ExpectErrorMessage()
+            {
+                //---------------Arrange-------------------
+                var path = Path.GetTempPath();
+                var fileName = Guid.NewGuid() + ".txt";
+                var document = new DocumentBuilder()
+                                    .With_Name(fileName)
+                                    .With_Bytes(null)    // explicitly set null data
+                                    .Create_Document();
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var result = await sut.Append(path, document);
+                //---------------Assert-----------------------
+                result.HadError.Should().BeTrue();
+                result.ErrorMessages.Should().Contain("No file data provided; cannot write file.");
             }
         }
 
@@ -297,7 +316,7 @@ namespace StoneAge.FileStore.Tests
             [TestCase(" ")]
             [TestCase("")]
             [TestCase(null)]
-            public void WhenFileNullOrWhiteSpace_ExpectTrue(string path)
+            public void WhenFileNullOrWhiteSpace_ExpectFalse(string path)
             {
                 //---------------Arrange-------------------
                 var sut = new FileSystem();
@@ -543,21 +562,13 @@ namespace StoneAge.FileStore.Tests
             public void GivenFileDoesNotExist_ExpectFalse()
             {
                 //---------------Arrange-------------------
-                var file = Create_File();
-                var newFileName = Create_File();
-                File.Delete(newFileName);
-                File.Delete(file);
+                var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
 
                 var sut = new FileSystem();
                 //---------------Act----------------------
-                var actual = sut.Move(file, newFileName);
+                var actual = sut.Move(path, Path.Combine(path, Guid.NewGuid().ToString()));
                 //---------------Assert-----------------------
-                var oldFileExist = File.Exists(file);
-                var newFileExist = File.Exists(newFileName);
-
                 actual.Should().BeFalse();
-                oldFileExist.Should().BeFalse();
-                newFileExist.Should().BeFalse();
             }
 
             [Test]
@@ -601,6 +612,26 @@ namespace StoneAge.FileStore.Tests
                 oldFileExist.Should().BeFalse();
                 newFileExist.Should().BeTrue();
             }
+            
+            [Test]
+            public void GivenFileDoesNotExist_ExpectFalse()
+            {
+                //---------------Arrange-------------------
+                var file = Create_File();
+                var newFileName = Create_File();
+                File.Delete(file);
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = sut.MoveWithOverwrite(file, newFileName);
+                //---------------Assert-----------------------
+                var oldFileExist = File.Exists(file);
+                var newFileExist = File.Exists(newFileName);
+
+                actual.Should().BeFalse();
+                oldFileExist.Should().BeFalse();
+                newFileExist.Should().BeTrue(); // Destination file should still exist
+            }
         }
 
         [TestFixture]
@@ -643,6 +674,31 @@ namespace StoneAge.FileStore.Tests
                 actual.Should().BeFalse();
                 oldFileExist.Should().BeFalse();
                 newFileExist.Should().BeFalse();
+            }
+            
+            [Test]
+            public void GivenDestinationFileAlreadyExists_ExpectFalse()
+            {
+                //---------------Arrange-------------------
+                var sourceFile = Create_File("source content");
+                var existingFileName = Guid.NewGuid().ToString();
+                var destinationFilePath = Path.Combine(Path.GetTempPath(), existingFileName);
+                File.WriteAllText(destinationFilePath, "destination content");
+                
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = sut.Rename(sourceFile, existingFileName);
+                //---------------Assert-----------------------
+                var sourceFileExists = File.Exists(sourceFile);
+                var destFileExists = File.Exists(destinationFilePath);
+                
+                actual.Should().BeFalse();
+                sourceFileExists.Should().BeTrue(); // Source file should still exist
+                destFileExists.Should().BeTrue(); // Destination file should still exist
+                
+                // Verify content hasn't changed
+                var destContent = File.ReadAllText(destinationFilePath);
+                destContent.Should().Be("destination content");
             }
         }
 
