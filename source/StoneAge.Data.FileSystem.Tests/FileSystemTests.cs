@@ -167,7 +167,7 @@ namespace StoneAge.FileStore.Tests
 
                 var sut = new FileSystem();
                 //---------------Act----------------------
-                var result = await sut.Write(path, document);
+                var result = await sut.Append(path, document);
                 //---------------Assert-----------------------
                 var fileWritten = File.Exists(Path.Combine(path, fileName));
                 result.HadError.Should().BeFalse();
@@ -184,7 +184,7 @@ namespace StoneAge.FileStore.Tests
 
                 var sut = new FileSystem();
                 //---------------Act----------------------
-                var result = await sut.Write(path, document);
+                var result = await sut.Append(path, document);
                 //---------------Assert-----------------------
                 result.HadError.Should().BeTrue();
             }
@@ -198,7 +198,7 @@ namespace StoneAge.FileStore.Tests
 
                 var sut = new FileSystem();
                 //---------------Act----------------------
-                var result = await sut.Write(path, document);
+                var result = await sut.Append(path, document);
                 //---------------Assert-----------------------
                 var fileWritten = File.Exists(Path.Combine(path, "test.csv"));
                 result.HadError.Should().BeFalse();
@@ -215,7 +215,7 @@ namespace StoneAge.FileStore.Tests
 
                 var sut = new FileSystem();
                 //---------------Act----------------------
-                var result = await sut.Write(path, document);
+                var result = await sut.Append(path, document);
                 //---------------Assert-----------------------
                 var expected = Path.Combine(path, fileName);
                 result.FullFilePath.Should().Be(expected);
@@ -262,6 +262,63 @@ namespace StoneAge.FileStore.Tests
                 var result = sut.List(path);
                 //---------------Assert-----------------------
                 result.Should().BeEmpty();
+            }
+        }
+
+        [TestFixture]
+        class ListAsync
+        {
+            [Test]
+            public async Task WhenDirectoryExist_ExpectContents()
+            {
+                //---------------Arrange-------------------
+                var path = Path.GetTempPath();
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var result = await sut.ListAsync(path);
+                //---------------Assert-----------------------
+                result.Count().Should().BeGreaterThanOrEqualTo(1);
+            }
+
+            [Test]
+            public async Task WhenFilePassedIn_ExpectEmptyList()
+            {
+                //---------------Arrange-------------------
+                var path = Path.GetTempFileName();
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var result = await sut.ListAsync(path);
+                //---------------Assert-----------------------
+                result.Should().BeEmpty();
+            }
+
+            [TestCase(" ")]
+            [TestCase("")]
+            [TestCase(null)]
+            public async Task WhenNullOrWhiteSpaceDirectory_ExpectEmptyList(string path)
+            {
+                //---------------Arrange-------------------
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var result = await sut.ListAsync(path);
+                //---------------Assert-----------------------
+                result.Should().BeEmpty();
+            }
+
+            [Test]
+            public async Task ShouldBehaveSameAsSyncVersion()
+            {
+                //---------------Arrange-------------------
+                var path = Path.GetTempPath();
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var syncResult = sut.List(path);
+                var asyncResult = await sut.ListAsync(path);
+                //---------------Assert-----------------------
+                asyncResult.Should().BeEquivalentTo(syncResult);
             }
         }
 
@@ -318,6 +375,80 @@ namespace StoneAge.FileStore.Tests
                 var result = sut.Exists(path);
                 //---------------Assert-----------------------
                 result.Should().BeTrue();
+            }
+        }
+
+        [TestFixture]
+        class ExistsAsync
+        {
+            [Test]
+            public async Task WhenFileDoesNotExist_ExpectFalse()
+            {
+                //---------------Arrange-------------------
+                var path = Create_Missing_File();
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var result = await sut.ExistsAsync(path);
+                //---------------Assert-----------------------
+                result.Should().BeFalse();
+            }
+
+            [Test]
+            public async Task WhenFileExist_ExpectTrue()
+            {
+                //---------------Arrange-------------------
+                var path = Create_File();
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var result = await sut.ExistsAsync(path);
+                //---------------Assert-----------------------
+                result.Should().BeTrue();
+            }
+
+            [TestCase(" ")]
+            [TestCase("")]
+            [TestCase(null)]
+            public async Task WhenFileNullOrWhiteSpace_ExpectFalse(string path)
+            {
+                //---------------Arrange-------------------
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var result = await sut.ExistsAsync(path);
+                //---------------Assert-----------------------
+                result.Should().BeFalse();
+            }
+            
+            [Test]
+            public async Task WhenDirectoryExist_ExpectTrue()
+            {
+                //---------------Arrange-------------------
+                var path = Path.GetTempPath();
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var result = await sut.ExistsAsync(path);
+                //---------------Assert-----------------------
+                result.Should().BeTrue();
+            }
+
+            [Test]
+            public async Task ShouldBehaveSameAsSyncVersion()
+            {
+                //---------------Arrange-------------------
+                var path = Create_File();
+                var nonExistingPath = Create_Missing_File();
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var syncExistResult = sut.Exists(path);
+                var asyncExistResult = await sut.ExistsAsync(path);
+                var syncNonExistResult = sut.Exists(nonExistingPath);
+                var asyncNonExistResult = await sut.ExistsAsync(nonExistingPath);
+                //---------------Assert-----------------------
+                asyncExistResult.Should().Be(syncExistResult);
+                asyncNonExistResult.Should().Be(syncNonExistResult);
             }
         }
 
@@ -383,6 +514,85 @@ namespace StoneAge.FileStore.Tests
         }
 
         [TestFixture]
+        class DeleteAsync
+        {
+            [Test]
+            public async Task WhenFileExist_ExpectItIsRemoved()
+            {
+                //---------------Arrange-------------------
+                var path = Create_File();
+                
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                await sut.DeleteAsync(path);
+                //---------------Assert-----------------------
+                var fileExists = File.Exists(path);
+                fileExists.Should().BeFalse();
+            }
+
+            [Test]
+            public async Task WhenFileDoesNotExist_ExpectNothingToHappen()
+            {
+                //---------------Arrange-------------------
+                var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                await sut.DeleteAsync(path);
+                //---------------Assert-----------------------
+                var fileExists = File.Exists(path);
+                fileExists.Should().BeFalse();
+            }
+
+            [TestCase(" ")]
+            [TestCase("")]
+            [TestCase(null)]
+            public async Task WhenFileNullOrWhitespace_ExpectNoExceptionsThrown(string path)
+            {
+                //---------------Arrange-------------------
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                await sut.DeleteAsync(path);
+                //---------------Assert-----------------------
+                var fileExists = File.Exists(path);
+                fileExists.Should().BeFalse();
+            }
+
+            [Test]
+            public async Task WhenDirectoryExist_ExpectItIsRemoved()
+            {
+                //---------------Arrange-------------------
+                var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+                Directory.CreateDirectory(path);
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                await sut.DeleteAsync(path);
+                //---------------Assert-----------------------
+                var fileExists = File.Exists(path);
+                fileExists.Should().BeFalse();
+            }
+
+            [Test]
+            public async Task ShouldBehaveSameAsSyncVersion()
+            {
+                //---------------Arrange-------------------
+                var path1 = Create_File();
+                var path2 = Create_File();
+                
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                sut.Delete(path1);
+                await sut.DeleteAsync(path2);
+                //---------------Assert-----------------------
+                var syncFileExists = File.Exists(path1);
+                var asyncFileExists = File.Exists(path2);
+                syncFileExists.Should().BeFalse();
+                asyncFileExists.Should().BeFalse();
+            }
+        }
+
+        [TestFixture]
         class ReadDocument
         {
             [Test]
@@ -423,6 +633,66 @@ namespace StoneAge.FileStore.Tests
                 var actual = sut.GetDocument(null);
                 //---------------Assert-----------------------
                 actual.Should().Be(FileSystem.NullDocument);
+            }
+        }
+
+        [TestFixture]
+        class GetDocumentAsync
+        {
+            [Test]
+            public async Task GivenFileExist_ExpectDocumentWithBytesReturned()
+            {
+                //---------------Arrange-------------------
+                var contents = "hi, this is some text for a file";
+
+                var path = Create_File(contents);
+                
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = await sut.GetDocumentAsync(path);
+                //---------------Assert-----------------------
+                var expected = "hi, this is some text for a file";
+                actual.ToString().Should().Be(expected);
+            }
+
+            [Test]
+            public async Task GivenFileDoesExist_ExpectNullDocument()
+            {
+                //---------------Arrange-------------------
+                var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = await sut.GetDocumentAsync(path);
+                //---------------Assert-----------------------
+                actual.Should().Be(FileSystem.NullDocument);
+            }
+
+            [Test]
+            public async Task GivenNullPath_ExpectNullDocument()
+            {
+                //---------------Arrange-------------------
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = await sut.GetDocumentAsync(null);
+                //---------------Assert-----------------------
+                actual.Should().Be(FileSystem.NullDocument);
+            }
+
+            [Test]
+            public async Task ShouldBehaveSameAsSyncVersion()
+            {
+                //---------------Arrange-------------------
+                var contents = "hi, this is some text for a file";
+                var path = Create_File(contents);
+                
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var syncResult = sut.GetDocument(path);
+                var asyncResult = await sut.GetDocumentAsync(path);
+                //---------------Assert-----------------------
+                asyncResult.Name.Should().Be(syncResult.Name);
+                asyncResult.Data.Should().BeEquivalentTo(syncResult.Data);
             }
         }
 
@@ -581,6 +851,95 @@ namespace StoneAge.FileStore.Tests
         }
 
         [TestFixture]
+        class MoveAsync
+        {
+            [Test]
+            public async Task GivenFileExist_ExpectItIsMoved()
+            {
+                //---------------Arrange-------------------
+                var file = Create_File();
+                var newFileName = Create_File();
+                File.Delete(newFileName);
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = await sut.MoveAsync(file, newFileName);
+                //---------------Assert-----------------------
+                var oldFileExist = File.Exists(file);
+                var newFileExist = File.Exists(newFileName);
+
+                actual.Should().BeTrue();
+                oldFileExist.Should().BeFalse();
+                newFileExist.Should().BeTrue();
+            }
+
+            [Test]
+            public async Task GivenFileDoesNotExist_ExpectFalse()
+            {
+                //---------------Arrange-------------------
+                var file = Create_File();
+                var newFileName = Create_File();
+                File.Delete(newFileName);
+                File.Delete(file);
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = await sut.MoveAsync(file, newFileName);
+                //---------------Assert-----------------------
+                var oldFileExist = File.Exists(file);
+                var newFileExist = File.Exists(newFileName);
+
+                actual.Should().BeFalse();
+                oldFileExist.Should().BeFalse();
+                newFileExist.Should().BeFalse();
+            }
+
+            [Test]
+            public async Task GivenDestinationFileExist_ExpectItIsNotMoved()
+            {
+                //---------------Arrange-------------------
+                var file = Create_File();
+                var newFileName = Create_File();
+                
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = await sut.MoveAsync(file, newFileName);
+                //---------------Assert-----------------------
+                var oldFileExist = File.Exists(file);
+                var newFileExist = File.Exists(newFileName);
+
+                actual.Should().BeFalse();
+                oldFileExist.Should().BeTrue();
+                newFileExist.Should().BeTrue();
+            }
+
+            [Test]
+            public async Task ShouldBehaveSameAsSyncVersion()
+            {
+                //---------------Arrange-------------------
+                var file1 = Create_File();
+                var file2 = Create_File();
+                var newFileName1 = Create_File();
+                var newFileName2 = Create_File();
+                File.Delete(newFileName1);
+                File.Delete(newFileName2);
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var syncResult = sut.Move(file1, newFileName1);
+                var asyncResult = await sut.MoveAsync(file2, newFileName2);
+                //---------------Assert-----------------------
+                syncResult.Should().BeTrue();
+                asyncResult.Should().BeTrue();
+                
+                File.Exists(file1).Should().BeFalse();
+                File.Exists(file2).Should().BeFalse();
+                File.Exists(newFileName1).Should().BeTrue();
+                File.Exists(newFileName2).Should().BeTrue();
+            }
+        }
+
+        [TestFixture]
         class MoveWithOverwrite
         {
             [Test]
@@ -600,6 +959,67 @@ namespace StoneAge.FileStore.Tests
                 actual.Should().BeTrue();
                 oldFileExist.Should().BeFalse();
                 newFileExist.Should().BeTrue();
+            }
+        }
+
+        [TestFixture]
+        class MoveWithOverwriteAsync
+        {
+            [Test]
+            public async Task GivenDestinationFileExist_ExpectItIsMoved()
+            {
+                //---------------Arrange-------------------
+                var file = Create_File();
+                var newFileName = Create_File();
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = await sut.MoveWithOverwriteAsync(file, newFileName);
+                //---------------Assert-----------------------
+                var oldFileExist = File.Exists(file);
+                var newFileExist = File.Exists(newFileName);
+
+                actual.Should().BeTrue();
+                oldFileExist.Should().BeFalse();
+                newFileExist.Should().BeTrue();
+            }
+
+            [Test]
+            public async Task GivenFileDoesNotExist_ExpectFalse()
+            {
+                //---------------Arrange-------------------
+                var file = Create_File();
+                var newFileName = Create_File();
+                File.Delete(file);
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = await sut.MoveWithOverwriteAsync(file, newFileName);
+                //---------------Assert-----------------------
+                actual.Should().BeFalse();
+            }
+
+            [Test]
+            public async Task ShouldBehaveSameAsSyncVersion()
+            {
+                //---------------Arrange-------------------
+                var file1 = Create_File("test content 1");
+                var file2 = Create_File("test content 2");
+                var dest1 = Create_File("original content 1");
+                var dest2 = Create_File("original content 2");
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var syncResult = sut.MoveWithOverwrite(file1, dest1);
+                var asyncResult = await sut.MoveWithOverwriteAsync(file2, dest2);
+                //---------------Assert-----------------------
+                syncResult.Should().BeTrue();
+                asyncResult.Should().BeTrue();
+                
+                File.Exists(file1).Should().BeFalse();
+                File.Exists(file2).Should().BeFalse();
+                File.Exists(dest1).Should().BeTrue();
+                File.Exists(dest2).Should().BeTrue();
             }
         }
 
@@ -643,6 +1063,72 @@ namespace StoneAge.FileStore.Tests
                 actual.Should().BeFalse();
                 oldFileExist.Should().BeFalse();
                 newFileExist.Should().BeFalse();
+            }
+        }
+
+        [TestFixture]
+        class RenameAsync
+        {
+            [Test]
+            public async Task GivenFileExist_ExpectItIsRenamed()
+            {
+                //---------------Arrange-------------------
+                var file = Create_File();
+                var newFileName = $"{Guid.NewGuid()}-moved.txt";
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = await sut.RenameAsync(file, newFileName);
+                //---------------Assert-----------------------
+                var oldFileExist = File.Exists(file);
+                var newFileExist = File.Exists(Path.Combine(Path.GetTempPath(), newFileName));
+
+                actual.Should().BeTrue();
+                oldFileExist.Should().BeFalse();
+                newFileExist.Should().BeTrue();
+            }
+
+            [Test]
+            public async Task GivenFileDoesNotExist_ExpectFalse()
+            {
+                //---------------Arrange-------------------
+                var file = Create_File();
+                var newFileName = $"{Guid.NewGuid()}-moved.txt";
+                File.Delete(file);
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var actual = await sut.RenameAsync(file, newFileName);
+                //---------------Assert-----------------------
+                var oldFileExist = File.Exists(file);
+                var newFileExist = File.Exists(Path.Combine(Path.GetTempPath(), newFileName));
+
+                actual.Should().BeFalse();
+                oldFileExist.Should().BeFalse();
+                newFileExist.Should().BeFalse();
+            }
+
+            [Test]
+            public async Task ShouldBehaveSameAsSyncVersion()
+            {
+                //---------------Arrange-------------------
+                var file1 = Create_File();
+                var file2 = Create_File();
+                var newFileName1 = $"{Guid.NewGuid()}-moved.txt";
+                var newFileName2 = $"{Guid.NewGuid()}-moved.txt";
+
+                var sut = new FileSystem();
+                //---------------Act----------------------
+                var syncResult = sut.Rename(file1, newFileName1);
+                var asyncResult = await sut.RenameAsync(file2, newFileName2);
+                //---------------Assert-----------------------
+                syncResult.Should().BeTrue();
+                asyncResult.Should().BeTrue();
+                
+                File.Exists(file1).Should().BeFalse();
+                File.Exists(file2).Should().BeFalse();
+                File.Exists(Path.Combine(Path.GetTempPath(), newFileName1)).Should().BeTrue();
+                File.Exists(Path.Combine(Path.GetTempPath(), newFileName2)).Should().BeTrue();
             }
         }
 
